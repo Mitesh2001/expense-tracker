@@ -30,7 +30,7 @@ export default function App() {
           headerTintColor: "white",
           tabBarStyle: { backgroundColor: GlobalStyles.colors.primary500 },
           tabBarActiveTintColor: GlobalStyles.colors.accent500,
-          headerRight: ({ tintColor }) => <IconButton color={tintColor} name='add' size={24} onPress={() => { navigation.navigate('ManageExpense') }} />
+          headerRight: ({ tintColor }) => <IconButton color={tintColor} icon='add' size={24} onPress={() => { navigation.navigate('ManageExpense') }} />
         })}
       >
         <BottomTab.Screen

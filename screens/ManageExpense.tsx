@@ -3,67 +3,64 @@ import { StyleSheet, Text, View } from 'react-native';
 import Expense from '../utils/types/expense';
 import IconButton from '../components/UI/IconButton';
 import { GlobalStyles } from '../constants/styles';
-import Button from '../components/UI/Button';
-import { ExpensesContext } from '../store/expenses-context';
+import { AddExpensePayload, ExpensesContext } from '../store/expenses-context';
+import ExpenseForm from '../components/ManageExpense/ExpenseForm';
+import { getFormattedDate } from '../utils/date';
 
 interface ManageExpenseProps {
     route: any,
     navigation: any
 }
 
+let defaultValues = {
+    amount: 0,
+    date: getFormattedDate(new Date()),
+    description: ""
+}
+
 const ManageExpense: FC<ManageExpenseProps> = ({ route, navigation }) => {
 
     const expenseId = route.params?.expenseId as Expense['id'];
-    const isEditting = !!expenseId;
 
-    const { deleteExpense, addExpense, updateExpense } = useContext(ExpensesContext);
+    const isEditing = !!expenseId;
+
+    const { deleteExpense, addExpense, updateExpense, expenses } = useContext(ExpensesContext);
+
+    const currentExpense = expenses.find(expense => expense.id === expenseId);
 
     const deleteExpenseHandler = () => {
         deleteExpense(expenseId);
         navigation.goBack();
     }
 
-    const cancelHandler = () => {
-        navigation.goBack();
-    }
-
-    const confirmHandler = () => {
-        if (isEditting) {
-            updateExpense(expenseId, {
-                amount: 100,
-                date: new Date(),
-                description: "This is the updated description line."
-            });
+    const confirmHandler = (expenseData: AddExpensePayload) => {
+        if (isEditing) {
+            updateExpense(expenseId, expenseData);
         } else {
-            addExpense({
-                date: new Date(),
-                amount: 35.00,
-                description: "This is the descripion line"
-            });
+            addExpense(expenseData);
         }
         navigation.goBack();
     }
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            title: isEditting ? "Edit Expense" : "Add Expense"
+            title: isEditing ? "Edit Expense" : "Add Expense"
         })
-    }, [navigation, isEditting])
+    }, [navigation, isEditing])
+
+    defaultValues = {
+        amount: currentExpense?.amount ?? 0,
+        date: getFormattedDate(currentExpense?.date ?? new Date()),
+        description: currentExpense?.description ?? ""
+    }
 
     return (
         <View style={styles.container}>
-            <View style={styles.buttons}>
-                <Button style={styles.button} mode="flat" onPress={cancelHandler}>
-                    Cancel
-                </Button>
-                <Button style={styles.button} onPress={confirmHandler}>
-                    {isEditting ? 'Update' : 'Add'}
-                </Button>
-            </View>
-            {isEditting && (
+            <ExpenseForm isEditing={isEditing} onSubmit={confirmHandler} defaultValues={defaultValues} />
+            {isEditing && (
                 <View style={styles.deleteContainer}>
                     <IconButton
-                        name="trash"
+                        icon="trash"
                         color={GlobalStyles.colors.error500}
                         size={36}
                         onPress={deleteExpenseHandler}
@@ -79,11 +76,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 24,
         backgroundColor: GlobalStyles.colors.primary800,
-    },
-    buttons: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     button: {
         minWidth: 120,
