@@ -3,20 +3,25 @@ import { StyleSheet, Text, View } from 'react-native';
 import Expense from '../../utils/types/expense';
 import ExpenseSummary from './ExpenseSummary';
 import ExpenseList from './ExpenseList';
-import { DUMMY_EXPENSES } from '../../dummy-data';
 import { GlobalStyles } from '../../constants/styles';
 
 interface ExpensesOutputProps {
-    expenses?: Expense[];
+    expenses: Expense[];
     expensesPeriod: string;
+    fallbackText: string;
 }
 
-const ExpensesOutput: FC<ExpensesOutputProps> = ({ expenses, expensesPeriod }) => {
+const ExpensesOutput: FC<ExpensesOutputProps> = ({ expenses, expensesPeriod, fallbackText }) => {
+    let content = <Text style={styles.infoText}>{fallbackText}</Text>;
+
+    if (expenses.length > 0) {
+        content = <ExpenseList expenses={expenses} />;
+    }
 
     return (
         <View style={styles.container}>
-            <ExpenseSummary expenses={DUMMY_EXPENSES} periodName={expensesPeriod} />
-            <ExpenseList expenses={DUMMY_EXPENSES} />
+            <ExpenseSummary expenses={expenses} periodName={expensesPeriod} />
+            {content}
         </View>
     );
 }
@@ -24,9 +29,17 @@ const ExpensesOutput: FC<ExpensesOutputProps> = ({ expenses, expensesPeriod }) =
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 24,
-        backgroundColor: GlobalStyles.colors.primary700
-    }
+        paddingHorizontal: 24,
+        paddingTop: 24,
+        paddingBottom: 0,
+        backgroundColor: GlobalStyles.colors.primary700,
+    },
+    infoText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 32,
+    },
 });
 
 export default ExpensesOutput;

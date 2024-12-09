@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@react-native-community/cli": "^16.0.0",
     "@types/react": "~18.3.12",
     "typescript": "^5.3.3"
   },

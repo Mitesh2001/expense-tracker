@@ -2,6 +2,8 @@ import React, { FC } from 'react';
 import { Pressable, StyleSheet, View, Text } from 'react-native';
 import Expense from '../../utils/types/expense';
 import { GlobalStyles } from '../../constants/styles';
+import { getFormattedDate } from '../../utils/date';
+import { useNavigation } from '@react-navigation/native';
 
 interface ExpenseItemProps {
     expense: Expense;
@@ -9,17 +11,27 @@ interface ExpenseItemProps {
 
 const ExpenseItem: FC<ExpenseItemProps> = ({ expense }) => {
 
-    const { amount, date, description } = expense;
+    const { id, amount, date, description } = expense;
+
+    const navigation = useNavigation() as any;
+
+    const expensePressHandler = () => {
+        navigation.navigate('ManageExpense', {
+            expenseId: id
+        });
+    }
 
     return (
-        <Pressable>
+        <Pressable onPress={expensePressHandler} style={({ pressed }) => pressed && styles.pressed}>
             <View style={styles.expenseItem}>
                 <View>
-                    <Text>{description}</Text>
-                    <Text>{date.toString()}</Text>
+                    <Text style={[styles.textBase, styles.description]}>
+                        {description}
+                    </Text>
+                    <Text style={styles.textBase}>{getFormattedDate(date)}</Text>
                 </View>
-                <View>
-                    <Text>{amount}</Text>
+                <View style={styles.amountContainer}>
+                    <Text style={styles.amount}>{amount.toFixed(2)}</Text>
                 </View>
             </View>
         </Pressable>
@@ -27,28 +39,43 @@ const ExpenseItem: FC<ExpenseItemProps> = ({ expense }) => {
 }
 
 const styles = StyleSheet.create({
+    pressed: {
+        opacity: 0.75
+    },
     expenseItem: {
         padding: 12,
         marginVertical: 8,
         backgroundColor: GlobalStyles.colors.primary500,
-        flexDirection: "row",
-        justifyContent: "space-between",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         borderRadius: 6,
         elevation: 3,
-        shadowColor: GlobalStyles.colors.primary500,
+        shadowColor: GlobalStyles.colors.gray500,
         shadowRadius: 4,
         shadowOffset: { width: 1, height: 1 },
-        shadowOpacity: 0.4
+        shadowOpacity: 0.4,
     },
     textBase: {
-        color: GlobalStyles.colors.primary50
+        color: GlobalStyles.colors.primary50,
     },
     description: {
-        color: GlobalStyles.colors.primary50
+        fontSize: 16,
+        marginBottom: 4,
+        fontWeight: 'bold',
     },
     amountContainer: {
-
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        minWidth: 80
     },
-})
+    amount: {
+        color: GlobalStyles.colors.primary500,
+        fontWeight: 'bold',
+    },
+});
 
 export default ExpenseItem;
